@@ -20,17 +20,20 @@ def uni_quat():
 	q = quaternion.generate_random_quaternion()
 	quatGroup.append(q)
 	start_timeP = time.time()
-	for i in range (49):
+	for i in range (99):
 		# generate more random and calculate the distance do quatGroup
 		#randomQuat = ()
 		maxDistQuat = 0
 		quatToAdd = None
-		for j in range (30):
+		for j in range (99):
 			r = quaternion.generate_random_quaternion()
 			#para cada quaterniao no quatGroup vamos ver qual a sua distancia o quaterniao r
 			min_of_all_dst = maxsize
 			for q in quatGroup:
+				#start_time = time.time()
 				dst_to_q = _calculateDistQuat(q,r,points)
+				#elapsed_time = time.time() - start_time
+				#print ("time for distance R = ", elapsed_time)
 				# ficamos com a distancia entre o nosso random e um quaterniao
 				# do quatGroup (ou seja, do R)
 				# se a distancia entre o random e o quaterniao q for menor
@@ -47,7 +50,7 @@ def uni_quat():
 				quatToAdd = r
 				
 		#print("adding", quatToAdd)
-		quatGroup.append(quatToAdd)
+		quatGroup.insert(0,quatToAdd)
 
 		
 	elapsed_timeP = time.time() - start_timeP
@@ -106,7 +109,8 @@ def _avaliateQualaty(quatGroup, points):
 		
 	print("media: ", mediaMin)
 	print("menor distancia: ", minDist)
-
+	
+	
 """
  Função que calcula a distancia entre dois quaterniões
 """	
