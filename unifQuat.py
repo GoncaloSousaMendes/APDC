@@ -20,12 +20,12 @@ def uni_quat():
 	q = quaternion.generate_random_quaternion()
 	quatGroup.append(q)
 	start_timeP = time.time()
-	for i in range (49):
+	for i in range (1000):
 		# generate more random and calculate the distance do quatGroup
 		#randomQuat = ()
 		maxDistQuat = 0
 		quatToAdd = None
-		for j in range (49):
+		for j in range (50):
 			r = quaternion.generate_random_quaternion()
 			#para cada quaterniao no quatGroup vamos ver qual a sua distancia o quaterniao r
 			min_of_all_dst = maxsize
@@ -54,15 +54,15 @@ def uni_quat():
 
 		
 	elapsed_timeP = time.time() - start_timeP
-	print ("time for generating R = ", elapsed_timeP)
-	print(len(quatGroup), "\n")
+	print "time for generating R = ", elapsed_timeP
+	print len(quatGroup), "\n"
 	
 	
 	# avaliar a distribuição de R
 	start_timeP = time.time()
 	_avaliateQualaty(quatGroup, points)
 	elapsed_timeP = time.time() - start_timeP
-	print ("\ntime for analise R = ", elapsed_timeP)
+	print "\ntime for analise R = ", elapsed_timeP
 
 """
  Função para avaliar a qualidade da distribuição dos quaterniões
@@ -104,11 +104,11 @@ def _avaliateQualaty(quatGroup, points):
 		
 	t = 1
 	for q in listForPrint:
-		print( t, ": ", q[1])
+		print t, ":" , q[1]
 		t = t+1
 		
-	print("media: ", mediaMin)
-	print("menor distancia: ", minDist)
+	print"media: ", mediaMin
+	print"menor distancia: ", minDist
 	
 	
 """
