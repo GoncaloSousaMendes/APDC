@@ -20,12 +20,12 @@ def uni_quat():
 	q = quaternion.generate_random_quaternion()
 	quatGroup.append(q)
 	start_timeP = time.time()
-	for i in range (99):
+	for i in range (49):
 		# generate more random and calculate the distance do quatGroup
 		#randomQuat = ()
 		maxDistQuat = 0
 		quatToAdd = None
-		for j in range (99):
+		for j in range (49):
 			r = quaternion.generate_random_quaternion()
 			#para cada quaterniao no quatGroup vamos ver qual a sua distancia o quaterniao r
 			min_of_all_dst = maxsize

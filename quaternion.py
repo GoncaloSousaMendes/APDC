@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding: latin-1
+import os, sys
 """
  This script works with quaternions
  it perfoms the multiplication, conversion (from and to quaternion)
@@ -123,10 +126,10 @@ def test():
 	
 	"""
 	curiosidade: 
-	se passarmos os angulos ((math.pi*2)/3), ou 120º, o resultado sera o mesmo
-	mas, noutras experiencias vemos que o que interessa é o angulo em radianos,
-	Aqui passmos em graus, pois está implementada uma função que converte para radianos
-	teste:
+	se passarmos os angulos ((math.pi*2)/3), ou 120graus, o resultado sera o mesmo
+	mas, noutras experiencias vemos que o que interessa e o angulo em radianos,
+	Aqui passmos em graus, pois está implementada uma funcao que converte para radianos
+	teste
 	#angle = ((math.pi*2)/3)
 	vector = (1, 0, 0)
 	angle = 360
