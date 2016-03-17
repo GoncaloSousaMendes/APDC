@@ -20,7 +20,7 @@ def uni_quat():
 	q = quaternion.generate_random_quaternion()
 	quatGroup.append(q)
 	start_timeP = time.time()
-	for i in range (1000):
+	for i in range (50):
 		# generate more random and calculate the distance do quatGroup
 		#randomQuat = ()
 		maxDistQuat = 0

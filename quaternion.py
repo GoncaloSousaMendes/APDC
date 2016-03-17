@@ -43,8 +43,13 @@ def axisangle_to_q(v, theta):
  when p is a point, or a 'pure' quaternion (w=0)
 """	
 def qv_mult(q1, v1):
-    q2 = (0.0,) + v1
-    return q_mult(q_mult(q1, q2), q_conjugate(q1))[1:]
+	q2 = (0.0,) + v1
+	#qq = q_mult(q1,q2)
+	#print qq
+	#qqq = q_conjugate(q1)
+	#print qqq
+	#return q_mult(qq, qqq)
+	return q_mult(q_mult(q1, q2), q_conjugate(q1))[1:]
 
 """
  perfom the aritmetics of p' = qpq'
@@ -60,13 +65,14 @@ def q_conjugate(q):
 	
 # the hamilton method to operate on complex numbers
 def q_mult(q1, q2):
-    w1, x1, y1, z1 = q1
-    w2, x2, y2, z2 = q2
-    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-    return w, x, y, z
+	w1, x1, y1, z1 = q1
+	w2, x2, y2, z2 = q2
+	w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+	x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+	y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+	z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
+    #z = w1 * z2 + z1 * w2 - y1 * x2 + x1 * y2 
+	return w, x, y, z
 
 # to normalize the vectors	
 def normalize(v, tolerance=0.00001):
@@ -130,7 +136,7 @@ def test():
 	mas, noutras experiencias vemos que o que interessa e o angulo em radianos,
 	Aqui passmos em graus, pois está implementada uma funcao que converte para radianos
 	teste
-	#angle = ((math.pi*2)/3)
+	angle = ((math.pi*2)/3)
 	vector = (1, 0, 0)
 	angle = 360
 	point = (1,1,1)
@@ -141,17 +147,34 @@ def test():
 	
 	vector = (0, 0, 1)
 	point = calc_quaternion(point, vector, angle)
-	"""
+	
 	vector = (1,0,0)
 	angle = 90
 	
 	v = axisangle_to_q(vector, angle)
 	print (v)
 	
-	#vector = (1, 1, 1)
-	#angle = 120
-	#point = (1,1,1)
-	#point = calc_quaternion(point, vector, angle)
+	
+	angle = ((math.pi*2)/3)
+	vector = (1, 0, 0)
+	angle = 360
+	point = (1,1,1)
+	point = calc_quaternion(point, vector, angle)
+	
+	vector = (0, 1, 0)
+	point = calc_quaternion(point, vector, angle)
+	
+	vector = (0, 0, 1)
+	point = calc_quaternion(point, vector, angle)
+	
+	print(point)
+	"""
+	vector = (1, 1, 1)
+	angle = 120
+	point = (1,0,0)
+	point = calc_quaternion(point, vector, angle)
+	
+	print point
 	
 	
 	
