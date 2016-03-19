@@ -15,6 +15,7 @@ def generate_random_quaternion():
 	y = math.sqrt(u1)*math.sin(2*math.pi*u3)
 	z = math.sqrt(u1)*math.cos(2*math.pi*u3)
 	v = x,x,y,z
+	print v
 	return v
 	
 	
@@ -53,6 +54,30 @@ def generate_randoms(times):
 	print("minAngle: ", minAngle)
 	print("distance: ", maxDist)
 	print("vector used: ", vector)
+	
+	
+"""
+Function that give us the vector 
+and angle of a quaternion, in degrees
+"""	
+def get_vector_from_quat(quaternion):
+	qw,qx,qy,qz = quaternion
+	if qw > 1:
+		quaternion.normalize(quaternion)
+	qw,qx,qy,qz = quaternion	
+	angle = 2*math.acos(qw)
+	angle = math.degrees(angle)
+	s = math.sqrt(1-qw*qw)
+	if s < 0.001:
+		x = qx
+		y = qy
+		z = qz
+	else:
+		x = qx/s
+		y = qy/s 
+		z = qz/s 
+	vector = angle, x, y, z
+	return vector
 
 def test_getting_vetor():
 	# expected: angle = 90, axis = 1,0,0

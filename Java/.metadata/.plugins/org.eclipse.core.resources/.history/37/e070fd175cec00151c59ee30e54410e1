@@ -1,0 +1,44 @@
+
+public class Quaternion {
+	
+	private double w;
+	private double x;
+	private double y;
+	private double z;
+	
+	public Quaternion (double w, double x, double y, double z){
+		this.w = w;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public double getW() {
+		return w;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public double getZ() {
+		return z;
+	}
+	
+}
+
+
+
+class quaternionsOperations{
+	//transforma de vetor angulo para quaternion
+	public Quaternion axisAngleToQuaternion (double [] vector, double theta){
+		double w = Math.cos(theta/2);
+		double x = vector[0] * Math.sin(theta/2);
+		double y = vector[1] * Math.sin(theta/2);
+		double z = vector[2] * Math.sin(theta/2);
+	}
+}

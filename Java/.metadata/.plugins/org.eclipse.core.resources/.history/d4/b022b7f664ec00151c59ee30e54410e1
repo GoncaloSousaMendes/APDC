@@ -1,0 +1,94 @@
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
+/**
+ * 
+ */
+
+/**
+ * @author Moncada
+ *
+ */
+public class Main {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		//test1();
+		//test2();
+		for (int i = 0; i< 10; i++)
+			test3();
+
+	}
+	
+	//testa a rotação de um point nos 3 eixos (um de cada vez) por 360 graus
+	public static void test1(){
+		quaternionsOperations op = new quaternionsOperations();
+		// ponto de teste, em formato quaternion
+		double [] point = new double[3];
+		point[0] = 1;
+		point[1] = 1;
+		point[2] = 1;
+		double angle = 360;
+		
+		//primeiro vetor
+		double [] vetor = new double[3];
+		vetor[0] = 1;
+		vetor[1] = 0;
+		vetor[2] = 0;
+		
+		Quaternion q0 = op.CalcQuaternion(point, vetor, angle);
+		
+		point[0] = q0.getX1();
+		point[1] = q0.getX2();
+		point[2] = q0.getX3();
+		//segundo vetor
+		vetor[0] = 0;
+		vetor[1] = 1;
+		vetor[2] = 0;
+		Quaternion q1 = op.CalcQuaternion(point, vetor, angle);
+		
+		point[0] = q1.getX1();
+		point[1] = q1.getX2();
+		point[2] = q1.getX3();
+		//segundo vetor
+		vetor[0] = 0;
+		vetor[1] = 1;
+		vetor[2] = 0;
+		Quaternion q2 = op.CalcQuaternion(point, vetor, angle);
+		
+		System.out.println(q2.toString());
+	}
+	
+	//testa a rotação de um point nos 3 eixos por 360 graus
+	public static void test2(){
+		quaternionsOperations op = new quaternionsOperations();
+		//ponto de teste
+		double [] point = new double[3];
+		point[0] = 1;
+		point[1] = 1;
+		point[2] = 1;
+		double angle = 120;
+		
+		//primeiro vetor
+		double [] vetor = new double[3];
+		vetor[0] = 1;
+		vetor[1] = 1;
+		vetor[2] = 1;
+		
+		Quaternion q0 = op.CalcQuaternion(point, vetor, angle);
+		
+		System.out.println(q0.toString());
+	}
+
+	public static void test3(){
+		quaternionsOperations op = new quaternionsOperations();
+		
+		Quaternion q = op.generateRandomQ();
+		System.out.println(q.toString());
+	}
+}
