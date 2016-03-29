@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-import math
 
-import math
+import math, random
 
 def fibonacci_sphere(N):
 	N = float(N) # in case we got an int which we surely got
@@ -16,10 +16,10 @@ def fibonacci_sphere(N):
 		pts.append([math.cos(phi)*r,y, math.sin(phi)*r])
 	return pts
 	
-	
+
 	
 if __name__ == '__main__':                
-    ptsOnSphere = fibonacci_sphere(1000)    
+    ptsOnSphere = fibonacci_sphere(500, False)    
 
     #toggle True/False to print them
     if( False ):    

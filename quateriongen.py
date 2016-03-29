@@ -153,6 +153,11 @@ def evaluate(rot_points):
     return res
   
 def draw_kde(vals,image_file):
+
+    me = np.median (vals)
+    print "Mediana: " , me
+    av = np.average (vals)
+    print "Media: ", av
     kde = KernelDensity(kernel='gaussian', bandwidth=0.75).fit(vals[:,np.newaxis])
     plt.figure(figsize=(12,8))
     xs = np.linspace(0, max(vals)*1.2, 1000)[:, np.newaxis]
@@ -163,11 +168,11 @@ def draw_kde(vals,image_file):
     
         
 points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
-quaternions_per_set = 100
+quaternions_per_set = 1000
 #print points
 start_time = time.time()
 
-quats,rots = spread_quaternions(points,100,quaternions_per_set)
+quats,rots = spread_quaternions(points,500,quaternions_per_set)
 print "elapsed:",time.time()-start_time
 
 start_time = time.time()
