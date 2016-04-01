@@ -4,6 +4,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KernelDensity
+import scipy.stats
 
 def random_quaternions(count=100):
     """
@@ -97,7 +98,7 @@ def point_dists(base_sets,new_sets):
     for ix in range(len(res)):
         diffs = base_sets[:]-new_sets[ix]
         dists = np.sum(np.square(diffs),axis=-1)
-        maxd = np.max(dists,axis=-1)        
+        maxd = np.max(dists,axis=-1) 	
         res[ix] = np.min(maxd)
     return res
         
@@ -123,7 +124,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
 		# criar quats_per_step quaterniões aleatorios 
         rand_quats = random_quaternions(quats_per_step) 
 		# fazer a rotação dos pontos usando os quaterniões aleatorios
-        positioned = rotate_points(points,rand_quats)  
+        positioned = rotate_points(points,rand_quats)
 		# ver as distancias
         dists = point_dists(rot_points[:ix],positioned)
 		# ir buscar o maximo das distancias mais proximas
@@ -131,7 +132,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
 		
         quats[ix,:]=rand_quats[new_rot,:]
         rot_points[ix,:,:] = positioned[new_rot,:,:]
-        
+    print "number of quaternions: ",len(quats)    
     return quats,rot_points
         
 def evaluate(rot_points):
@@ -150,6 +151,7 @@ def evaluate(rot_points):
         dists = np.sum(np.square(diffs),axis=-1)
         maxd = np.max(dists,axis=-1)        
         res[ix] = np.min(maxd)
+	
     return res
   
 def draw_kde(vals,image_file):
@@ -158,6 +160,26 @@ def draw_kde(vals,image_file):
     print "Mediana: " , me
     av = np.average (vals)
     print "Media: ", av
+	
+	# não vale a pena calcular a moda, pois não há 
+	# valores iguais!
+    #mode = np.bincount(vals)
+    #print "Moda: ", np.argmax(mode)
+    #(values,counts) = np.unique(vals,return_counts=True)
+    #ind=np.argmax(counts)
+    #print "Moda: ", values[ind]  # prints the most frequent element
+    #print "Moda: ", scipy.stats.mode(vals)
+	
+    var = np.var(vals)
+    print "Variancia: ", var
+	
+	#shapiro wilk test
+    s = scipy.stats.shapiro(vals)
+    print "shapiro: ", s
+	
+    k = scipy.stats.kurtosis(vals,axis=0, fisher=False, bias=True)
+    print "kurtosis: ", k
+	
     kde = KernelDensity(kernel='gaussian', bandwidth=0.75).fit(vals[:,np.newaxis])
     plt.figure(figsize=(12,8))
     xs = np.linspace(0, max(vals)*1.2, 1000)[:, np.newaxis]
@@ -168,15 +190,15 @@ def draw_kde(vals,image_file):
     
         
 points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
-quaternions_per_set = 1000
+quaternions_per_set = 5
+number_of_quat = 5
 #print points
 start_time = time.time()
 
-quats,rots = spread_quaternions(points,500,quaternions_per_set)
+quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
 print "elapsed:",time.time()-start_time
-
 start_time = time.time()
 mins = evaluate(rots)
 print "elapsed eval:",time.time()-start_time
-
+#print mins
 draw_kde(mins,'distribution_'+str(quaternions_per_set)+'.png')

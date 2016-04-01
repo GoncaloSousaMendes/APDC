@@ -9,13 +9,13 @@ import numpy as np
 
 # metodo de Saff and Kuijlaars
 # http://web.archive.org/web/20120421191837/http://www.cgafaq.info/wiki/Evenly_distributed_points_on_sphere
-def GetPointsEquiAngularlyDistancedOnSphere(numberOfPoints=45):
+def GetPointsEquiAngularlyDistancedOnSphere(numberOfPoints=576):
     """ each point you get will be of form 'x, y, z'; in cartesian coordinates
         eg. the 'l2 distance' from the origion [0., 0., 0.] for each point will be 1.0 
         ------------
         converted from:  http://web.archive.org/web/20120421191837/http://www.cgafaq.info/wiki/Evenly_distributed_points_on_sphere ) 
     """
-    points = np.zeros((numberOfPoints/2+1, 3))
+    points = np.zeros((numberOfPoints/2, 3))
 	
     dlong = pi*(3.0-sqrt(5.0))  # ~2.39996323 
     dz   =  2.0/numberOfPoints
@@ -30,7 +30,7 @@ def GetPointsEquiAngularlyDistancedOnSphere(numberOfPoints=45):
 		z    = z - dz
 		long = long + dlong
 		# so queremos em metade da esfera
-		if(k == 288):
+		if(k == 287):
 			break
     return points
 
@@ -65,10 +65,10 @@ def fibonacci_sphere(samples=1,randomize=True):
 if __name__ == '__main__':                
 	#ptsOnSphere = fibonacci_sphere(500, False)  
     ptsOnSphere = GetPointsEquiAngularlyDistancedOnSphere(576)
-
+    print len(ptsOnSphere)
     #toggle True/False to print them
-    if( True ):
-        for pt in ptsOnSphere:  print( pt)
+    if( False ):
+        for pt in ptsOnSphere:  print(pt)
 
     #toggle True/False to plot them
     if(True):

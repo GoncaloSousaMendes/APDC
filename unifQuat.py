@@ -77,9 +77,9 @@ def _avaliateQualaty(quatGroup, points):
 		# para comparar com os outros todos e descobrir o mais proximo
 		quat = quatGroup.pop()
 		# para ver se há repetidos, so para testes, devem ser 0!
-		c = quatGroup.count(quat)
-		if c != 0:
-			print("existem ", c, " iguais")
+		#c = quatGroup.count(quat)
+		#if c != 0:
+		#	print("existem ", c, " iguais")
 		#print ("existem ",c, " quaterniões iguas ao que retiramos")
 		minDstQuat = maxsize
 		for q in quatGroup:

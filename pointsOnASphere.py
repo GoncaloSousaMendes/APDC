@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-import math
+# -*- coding: utf-8 -*-
 
 import math, random
 

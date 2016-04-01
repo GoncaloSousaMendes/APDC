@@ -69,9 +69,9 @@ public class Main {
 		long finalTime = System.currentTimeMillis();
 		System.out.println("Total time: " + (finalTime - initialTime));
 		
-		//for (Quaternion q: quatGroup){
-		//	System.out.println(q.toString());
-		//}
+		for (Quaternion q: quatGroup){
+			System.out.println(q.toString());
+		}
 	}
 	
 	public static List<double[]> generatePoints(){
@@ -136,7 +136,8 @@ public class Main {
 		}
 		return maxDist;
 	}
-		
+	
+	
 	//testa a rotação de um point nos 3 eixos (um de cada vez) por 360 graus
  	public static void test1(){
 		quaternionsOperations op = new quaternionsOperations();
