@@ -101,7 +101,6 @@ def point_dists(base_sets,new_sets):
         maxd = np.max(dists,axis=-1) 	
         res[ix] = np.min(maxd)
     return res
-        
     
     
 def spread_quaternions(points,num=100,quats_per_step=100):
@@ -138,8 +137,18 @@ def spread_quaternions(points,num=100,quats_per_step=100):
 def evaluate(rot_points):
     """
     return array with min distances
+	and a structure with the number of quaternion
+	closer to him, with quaternios matrices, which matrice with 
+	two lines, the first whith the number of the closer quaternion
+	(acording to its position on the rot_points)
+	and the second line containing that distance
     """
     res = np.ndarray(rot_points.shape[0])
+	# estrutura que guarda o quaterniao mais proximo
+	# e a distancia entre eles
+    bindings = np.zeros((rot_points.shape[0], 2, 1))
+    print "begin evaluate"
+    #print res
     for ix in range(len(res)):
         if ix==0:
             base_sets = rot_points[1:]
@@ -149,10 +158,31 @@ def evaluate(rot_points):
             base_sets = np.concatenate((rot_points[:ix],rot_points[ix+1:]))          
         diffs = base_sets[:]-rot_points[ix]
         dists = np.sum(np.square(diffs),axis=-1)
-        maxd = np.max(dists,axis=-1)        
-        res[ix] = np.min(maxd)
-	
-    return res
+        maxd = np.max(dists,axis=-1)  
+        # nota: maxd contèm as distancias do quaternião presente
+		# a todos os outros	
+        #res[ix] = np.min(maxd)
+        min = 9999
+		#refere-se a posicao no rot_points, ou seja, será sempre +1
+        quat_number = 0
+        for iz in range (0,len(maxd)):
+            if maxd[iz] <= min:
+                min = maxd[iz]
+                if (iz < ix):
+					quat_number = iz
+                else:
+	                quat_number = iz+1
+        #print "Iteração: ", ix
+        #print maxd
+        #print res
+        bindings[ix,0,0] = quat_number+1
+        bindings[ix,1,0] = min
+        res[ix] = min
+        #print ligacao
+    #print "finais:"
+    #print ligacao
+    #print res
+    return res, bindings
   
 def draw_kde(vals,image_file):
 
@@ -184,14 +214,14 @@ def draw_kde(vals,image_file):
 #points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
 points = np.array([(0,0,0), (1,1,1),(2,2,2)]).astype(float)
 quaternions_per_set = 2
-number_of_quat = 3
+number_of_quat = 4
 #print points
 start_time = time.time()
 
 quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
 print "elapsed:",time.time()-start_time
 start_time = time.time()
-mins = evaluate(rots)
+mins, bindings = evaluate(rots)
 print "elapsed eval:",time.time()-start_time
 #print mins
 draw_kde(mins,'distribution_'+str(quaternions_per_set)+'.png')
