@@ -125,7 +125,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
         rand_quats = random_quaternions(quats_per_step) 
 		# fazer a rotação dos pontos usando os quaterniões aleatorios
         positioned = rotate_points(points,rand_quats)
-		# ver as distancias
+		# ver as distancias (retorna já os mais proximos!)
         dists = point_dists(rot_points[:ix],positioned)
 		# ir buscar o maximo das distancias mais proximas
         new_rot = np.argmax(dists)
@@ -160,25 +160,17 @@ def draw_kde(vals,image_file):
     print "Mediana: " , me
     av = np.average (vals)
     print "Media: ", av
-	
-	# não vale a pena calcular a moda, pois não há 
-	# valores iguais!
-    #mode = np.bincount(vals)
-    #print "Moda: ", np.argmax(mode)
-    #(values,counts) = np.unique(vals,return_counts=True)
-    #ind=np.argmax(counts)
-    #print "Moda: ", values[ind]  # prints the most frequent element
-    #print "Moda: ", scipy.stats.mode(vals)
+
 	
     var = np.var(vals)
     print "Variancia: ", var
 	
 	#shapiro wilk test
-    s = scipy.stats.shapiro(vals)
-    print "shapiro: ", s
+    #s = scipy.stats.shapiro(vals)
+    #print "shapiro: ", s
 	
-    k = scipy.stats.kurtosis(vals,axis=0, fisher=False, bias=True)
-    print "kurtosis: ", k
+    #k = scipy.stats.kurtosis(vals,axis=0, fisher=False, bias=True)
+    #print "kurtosis: ", k
 	
     kde = KernelDensity(kernel='gaussian', bandwidth=0.75).fit(vals[:,np.newaxis])
     plt.figure(figsize=(12,8))
@@ -189,9 +181,10 @@ def draw_kde(vals,image_file):
     plt.close()
     
         
-points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
-quaternions_per_set = 5
-number_of_quat = 5
+#points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
+points = np.array([(0,0,0), (1,1,1),(2,2,2)]).astype(float)
+quaternions_per_set = 2
+number_of_quat = 3
 #print points
 start_time = time.time()
 
