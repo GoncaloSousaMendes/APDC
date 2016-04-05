@@ -5,6 +5,7 @@ import time
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KernelDensity
 import scipy.stats
+import hillClimbing as hc
 
 def random_quaternions(count=100):
     """
@@ -209,19 +210,23 @@ def draw_kde(vals,image_file):
     plt.plot(xs,ys,'-b', linewidth=3)
     plt.savefig(image_file,dpi=300,bbox_inches='tight')
     plt.close()
+    return me
     
-        
-#points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
-points = np.array([(0,0,0), (1,1,1),(2,2,2)]).astype(float)
-quaternions_per_set = 2
-number_of_quat = 4
-#print points
-start_time = time.time()
+#def spread_quat():                
+	#points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
+	points = np.array([(0,0,0), (1,1,1),(2,2,2)]).astype(float)
+	quaternions_per_set = 2
+	number_of_quat = 4
+	#print points
+	start_time = time.time()
 
-quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
-print "elapsed:",time.time()-start_time
-start_time = time.time()
-mins, bindings = evaluate(rots)
-print "elapsed eval:",time.time()-start_time
-#print mins
-draw_kde(mins,'distribution_'+str(quaternions_per_set)+'.png')
+	quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
+	print "elapsed:",time.time()-start_time
+	start_time = time.time()
+	mins, bindings = evaluate(rots)
+	print "elapsed eval:",time.time()-start_time
+	#print mins
+	mediana = draw_kde(mins,'distribution_'+str(quaternions_per_set)+'.png')
+	#return quats, bindings, mediana, points, rot
+        #end     
+
