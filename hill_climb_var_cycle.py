@@ -159,7 +159,7 @@ def evaluate(rot_points):
 	# estrutura que guarda o quaterniao mais proximo
 	# e a distancia entre eles
     bindings = np.zeros((rot_points.shape[0], 2, 1))
-    print "begin evaluate"
+    #print "begin evaluate"
     #print res
     for ix in range(len(res)):
         if ix==0:
@@ -195,6 +195,24 @@ def evaluate(rot_points):
     #print ligacao
     #print res
     return res, bindings
+	
+def evaluate_no_bindings(rot_points):
+    """
+    return array with min distances
+    """
+    res = np.ndarray(rot_points.shape[0])
+    for ix in range(len(res)):
+        if ix==0:
+            base_sets = rot_points[1:]
+        elif ix==len(res)-1:
+            base_sets = rot_points[:-1]
+        else:
+            base_sets = np.concatenate((rot_points[:ix],rot_points[ix+1:]))          
+        diffs = base_sets[:]-rot_points[ix]
+        dists = np.sum(np.square(diffs),axis=-1)
+        maxd = np.max(dists,axis=-1)        
+        res[ix] = np.min(maxd)
+    return res
   
 def draw_kde(vals,image_file):
 
@@ -222,8 +240,6 @@ def draw_kde(vals,image_file):
     plt.savefig(image_file,dpi=300,bbox_inches='tight')
     plt.close()
     return me, var, av
-
-
 	
 def point_dists_mine(base_sets,new_sets):
 	"""
@@ -239,105 +255,149 @@ def point_dists_mine(base_sets,new_sets):
 		res[ix] = np.max(dists,axis=-1)
 	return res
 
-def dist (p1, p2):
-	return scipy.spatial.distance.cdist(p1,p2)
-
-	
-	
 def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia, av):
 	print "\nHill climbing"
 	#vamos sempre trabalhar com os quaternioes antigos, e guardar nas estrutras novas!
 	# estava a mudar so o apontador... (afinal é java...)
-	value_to_divide = 100
-	number_of_randoms = 10
+
 	new_set_quat = np.copy(quaternions)
 	new_rot_points = np.copy(rot_points)
 	to_much = 2
 	#print bindings
 	#print "length = ", bindings.shape[0]
 	#print mediana
-	for ix in range (0,bindings.shape[0]):
-		# só queremos alterar alqueles que estão muito proximos
-		a = bindings[ix, 1,0]
+	it = 0
+	accepted = 0
+	var = np.copy(variancia)
+	start_time = time.time()
+	#while ( (variancia < var -1) or (it < number_it)):
+	while ( it < number_it):
+		for ix in range (0,bindings.shape[0]):
+			# só queremos alterar alqueles que estão muito proximos
+			a = bindings[ix, 1,0]
 
-		#print mediana
-		if  (a < mediana):
-			#print "distancia a aumentar: ", a
-			# arranjar randons
-			randoms = np.random.uniform(-1,1,(number_of_randoms,4))
-			# temos de mexer pouco nos quaternioes
-			randoms = np.divide(randoms, value_to_divide)
-			#print randoms
-			#print "getting the: ", bindings[ix,0,0], " quaternion"
-			#print "value: ", quaternions[bindings[ix,0,0]]
-			news_quats = np.sum((randoms, quaternions[bindings[ix,0,0]]))
-			#print news_quats
-			new_points = rotate_points(points, news_quats)
-			#print "old point:"
-			#print rot_points[bindings[ix,0,0]]
-			#print "novos pontos:"
-			#print new_points
-			dist = point_dists_mine(rot_points[ix], new_points)
-			#print "distancias"
-			#print dist
-			# no futuro usar todos os valores
-			#dist = np.where( dist > mediana )  --> não se pode usar pois é necessario saber a posicao do quaterniao que gerou estes valores
-			#print dist
-			for iz in range (len(dist)):
-				if (dist[iz] > a) & (dist[iz] < (mediana + to_much)):
-					#guardar os novos pontos
-					#print "Novo ponto: ", iz
-					new_rot_points[bindings[ix,0,0]] = new_points[iz]
-					#print "Pontos antigos: "
-					#print rot_points[bindings[ix,0,0]]
-					#print "Novos pontos: "
-					#print new_rot_points[bindings[ix,0,0]]
-					#guardar o novo quaterniao
-					new_set_quat[bindings[ix,0,0]] = news_quats[iz]
-					#print "Nova distancia = ", dist[iz]
-					#print "Novo quaterniao = ", news_quats[iz]
-					#break;
-
-	
+			#print mediana
+			if  (a < mediana):
+				#print "distancia a aumentar: ", a
+				# arranjar randons
+				randoms = np.random.uniform(-1,1,(number_of_randoms,4))
+				# temos de mexer pouco nos quaternioes
+				randoms = np.divide(randoms, value_to_divide)
+				#print randoms
+				#print "getting the: ", bindings[ix,0,0], " quaternion"
+				#print "value: ", quaternions[bindings[ix,0,0]]
+				news_quats = np.sum((randoms, quaternions[bindings[ix,0,0]]))
+				#print news_quats
+				new_points = rotate_points(points, news_quats)
+				#print "old point:"
+				#print rot_points[bindings[ix,0,0]]
+				#print "novos pontos:"
+				#print new_points
+				dist = point_dists_mine(rot_points[ix], new_points)
+				#print "distancias"
+				#print dist
+				# no futuro usar todos os valores
+				#dist = np.where( dist > mediana )  --> não se pode usar pois é necessario saber a posicao do quaterniao que gerou estes valores
+				#print dist
+				for iz in range (len(dist)):
+					if (dist[iz] > a) & (dist[iz] < (mediana + to_much)):
+						#guardar os novos pontos
+						#print "Novo ponto: ", iz
+						new_rot_points[bindings[ix,0,0]] = new_points[iz]
+						#print "Pontos antigos: "
+						#print rot_points[bindings[ix,0,0]]
+						#print "Novos pontos: "
+						#print new_rot_points[bindings[ix,0,0]]
+						#guardar o novo quaterniao
+						new_set_quat[bindings[ix,0,0]] = news_quats[iz]
+						#print "Nova distancia = ", dist[iz]
+						#print "Novo quaterniao = ", news_quats[iz]
+						break;
+		
+		
+		
+		mins = evaluate_no_bindings(new_rot_points)
+		var_old = np.copy(var)
+		varTemp = np.var(mins)
+		#print "Variancia antiga: ", var_old
+		#print "Variancia nova: ", varTemp
+		it = it +1
+		#if (varTemp*100 < var_old*100):
+		if ((varTemp-var_old) < 0.):
+			#print var-var_old
+			rot_points = np.copy(new_rot_points)
+			quaternions = np.copy(new_set_quat)
+			var = np.copy(varTemp)
+			accepted = accepted + 1
+		else:
+			var = np.copy(var_old)
+		#print "Variancia aceite: ", var, "\n"
 	
 	#mins, bindings = evaluate(rot_points)
 	#mediana2, var2 = draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'.png')
 	#print "Mediana antiga: ", mediana, " mediana nova: ", mediana2
 	#print "Variancia antiga: ", var, " Variancia nova: ", var2
 	
-	mins, bindings = evaluate(new_rot_points)
+	mins = evaluate_no_bindings(rot_points)
 	mediana2, var2, av2 = draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'.png')
-	print "Mediana antiga: ", mediana, " mediana nova: ", mediana2, " diferença: ", math.fabs(mediana-mediana2)
-	print "Media antiga: ", av, " media nova: ", av2, " diferença: ", math.fabs(av-av2)
-	print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", math.fabs(variancia-var2)
-	
+	#print "Mediana antiga: ", mediana, " mediana nova: ", mediana2, " diferença: ", math.fabs(mediana-mediana2)
+	#print "Media antiga: ", av, " media nova: ", av2, " diferença: ", math.fabs(av-av2)
+	print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", var2-variancia
+	print "numero de aceitações: ", accepted
+	print "elapsed:",time.time()-start_time
 	#print "Pontos antigos: "
 	#print rot_points
 	#print "Novos pontos: "
 	#print new_rot_points
 	
 	
-	return new_set_quat, new_rot_points
+	#return new_set_quat, new_rot_points
+	return var2-variancia, accepted
     
             
 points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
 #points = np.array([(0,1,0), (1,1,1),(2,2,2)]).astype(float)
+# variavies globais para alterar
 quaternions_per_set = 100
-number_of_quat = 1000
+number_of_quat = 4000
+#para o hill climbing
+value_to_divide = 1000
+number_of_randoms = 100
+number_it = 10
 #print points
-start_time = time.time()
-
-quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
-print "elapsed:",time.time()-start_time
-start_time = time.time()
-mins, bindings = evaluate(rots)
-print "elapsed eval:",time.time()-start_time
-#print mins
-mediana, var, av = draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
+vdg = 0
+acg = 0
+start_time_global = time.time()
+for times in range (0,3):
+	start_time = time.time()
+	quats,rots = spread_quaternions(points,number_of_quat,quaternions_per_set)
+	print "elapsed:",time.time()-start_time
+	start_time = time.time()
+	mins, bindings = evaluate(rots)
+	print "elapsed eval:",time.time()-start_time
+	#print mins
+	mediana, var, av = draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
+	#print "Media: ", av
+	#print "Mediana: ", mediana
+	#print "Variancia: ", var
 #print quats
-hill_climbing(quats, bindings, mediana, points, rots, var, av)
+	
+	vd, a = hill_climbing(quats, bindings, mediana, points, rots, var, av)
 	
 	
 	
+	if times == 0:
+		vdg = vd
+		acg = a
+	else:
+		vdg = (vd + vdg)/2
+		acg = (a + acg)/2
 	
-	
+	print "\n"
+print "divide by: ", value_to_divide
+print "iterações: ", number_it
+print "randoms: ", number_of_randoms
+print "Var Dif: ", vdg
+print "Ace Dif: ", acg
+print "elapsed eval global:",time.time()-start_time_global
+print "\n\n\n"
