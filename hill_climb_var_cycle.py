@@ -312,7 +312,7 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
 						new_set_quat[bindings[ix,0,0]] = news_quats[iz]
 						#print "Nova distancia = ", dist[iz]
 						#print "Novo quaterniao = ", news_quats[iz]
-						break;
+						#break;
 		
 		
 		
@@ -363,7 +363,7 @@ number_of_quat = 4000
 #para o hill climbing
 value_to_divide = 1000
 number_of_randoms = 100
-number_it = 10
+number_it = 20
 #print points
 vdg = 0
 acg = 0
