@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Normalizar os vetores?
+"""
 import math
 import numpy as np
 import  spread_points as sp
@@ -15,7 +17,7 @@ def spread_quat():
 	points = sp.GetPointsEquiAngularlyDistancedOnSphere()
 	#print points
 	
-	#colocar já os angulos em radianos para melhorar a eficiencia
+	#Fazer: colocar já os angulos em radianos para melhorar a eficiencia
 	angles = np.arange(0,360, 15)
 	#print angles
 	i = 0
@@ -38,14 +40,6 @@ def _convert_to_quaternions (quat):
 	quat [:,:,3] = quat [:,:,3] * np.sin(np.radians(quat[:,:,0])/2)
 	return quat
 	
-	
-# to normalize the vectors		
-def _normalize(v, tolerance=0.00001):
-	mag2 = sum(n * n for n in v)
-	if abs(mag2 - 1.0) > tolerance:
-		mag = math.sqrt(mag2)
-		v = tuple(n / mag for n in v)
-	return v	
 	
 def point_dists(base_sets,new_sets):
     """

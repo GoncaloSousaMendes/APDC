@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+A função point_dists retorna já o minimos certo? está la escrito que retorna o max das distancias, mas np.min(maxd) é para ir buscar 
+o minimo
+Mundaças no evaluate
+"""
+
 
 import numpy as np
 import time
@@ -65,8 +71,7 @@ def conjugate(quats):
     res[:,3]=-quats[:,3]
     
     return res
-
-    
+  
 def rotate_points(points,quaternions):
     """
     return matrix with rotated points

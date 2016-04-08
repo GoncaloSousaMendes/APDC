@@ -359,7 +359,7 @@ points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (
 #points = np.array([(0,1,0), (1,1,1),(2,2,2)]).astype(float)
 # variavies globais para alterar
 quaternions_per_set = 100
-number_of_quat = 4000
+number_of_quat = 6624
 #para o hill climbing
 value_to_divide = 1000
 number_of_randoms = 100
