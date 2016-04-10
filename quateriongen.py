@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 A função point_dists retorna já o minimos certo? está la escrito que retorna o max das distancias, mas np.min(maxd) é para ir buscar 
-o minimo
+o minimo 
 Mundaças no evaluate
 """
 
