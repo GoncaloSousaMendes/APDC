@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import math, random
+import math
 
 def fibonacci_sphere(N):
 	N = float(N) # in case we got an int which we surely got

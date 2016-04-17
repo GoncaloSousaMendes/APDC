@@ -2,11 +2,11 @@
 """
 Normalizar os vetores?
 """
-import math
+
 import numpy as np
 import  spread_points as sp
 import quateriongen as qt
-import scipy
+
 
 def spread_quat():
 	#vamos ter 6624
@@ -20,11 +20,11 @@ def spread_quat():
 	#Fazer: colocar já os angulos em radianos para melhorar a eficiencia
 	angles = np.arange(0,360, 15)
 	#print angles
-	i = 0
+	#i = 0
 	for ix in range (0,288):
 		quatDist [ix, :,1:] = points[ix,:]
-		for v in range(0,23):
-			quatDist[ix,v,0] = angles[v]
+		for v in range(1,24):
+			quatDist[ix,v-1,0] = angles[v]
 			#print i
 			#i = i + 1
 			
@@ -32,13 +32,7 @@ def spread_quat():
 	#print quatDist
 	return quatDist
 			
-def _convert_to_quaternions (quat):
-	quat[:,:,0]= np.cos(np.radians(quat[:,:,0])/2)
-	#quat [:,:,1:] = _normalize(quat [:,:,1:])
-	quat [:,:,1] = quat [:,:,1] * np.sin(np.radians(quat[:,:,0])/2)
-	quat [:,:,2] = quat [:,:,2] * np.sin(np.radians(quat[:,:,0])/2)
-	quat [:,:,3] = quat [:,:,3] * np.sin(np.radians(quat[:,:,0])/2)
-	return quat
+
 	
 	
 def point_dists(base_sets,new_sets):
@@ -50,14 +44,14 @@ def point_dists(base_sets,new_sets):
     for ix in range(len(res)):
         diffs = base_sets[:]-new_sets[ix]
         dists = np.sum(np.square(diffs),axis=-1)
-        res [ix] = maxd = np.max(dists,axis=-1) 	
+        res [ix] = np.max(dists,axis=-1)
     return res
 	
 q = spread_quat()
 qu = np.zeros((6624,4))
 
 
-quat = _convert_to_quaternions(q)
+quat = qt.convert_to_quaternions(q)
 #print quat.shape
 points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
 
@@ -75,10 +69,10 @@ for ix in range (0,288):
 positioned = qt.rotate_points(points, qu)
 #print positioned
 
-mins = qt.evaluate(positioned)
+mins = qt.evaluate_no_bindings(positioned)
 #print mins
 
-qt.draw_kde(mins,'distribution_'+str(6624)+'.png')
+qt.draw_kde(mins,'distribution_'+str(6624)+'.png', np.max(mins))
 
 
 

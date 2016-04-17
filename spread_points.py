@@ -1,9 +1,12 @@
 """
 Retirado de:
 http://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
+Contem duas maneiras de espalhar pontos por uma esfera:
+ - metodo de Saff and Kuijlaars
+ - metodo de fibonacci
 """
 
-from math import cos, sin, pi, sqrt, pi
+from math import cos, sin, pi, sqrt
 import random
 import numpy as np
 
