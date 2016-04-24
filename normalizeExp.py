@@ -31,9 +31,17 @@ def normalize_quat(quat):
     
     
 def test():
-    quat = np.zeros((2,4))
+    quat = np.zeros((5,4))
     quat[0,:] = [1,0,1,0]
     quat[1,:] = [0,1,0,1]
+    
+    quat[2,:] = [1,1,0,1]
+    quat[3,:] = [0,1,1,1]
+    quat[4,:] = [1,1,1,1]
+    
+    
+    
+    
     
     r = normalize_quat(quat)
     

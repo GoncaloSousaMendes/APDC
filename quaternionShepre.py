@@ -72,7 +72,7 @@ positioned = qt.rotate_points(points, qu)
 mins = qt.evaluate_no_bindings(positioned)
 #print mins
 
-qt.draw_kde(mins,'distribution_'+str(6624)+'.png', np.max(mins))
+qt.draw_kde(mins,'distribution_'+str(6624)+'.png', np.max(mins)/1000)
 
 
 

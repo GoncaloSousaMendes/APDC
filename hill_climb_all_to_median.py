@@ -6,6 +6,8 @@ Para melhorar a distribuição, usa-se o hill climbing, mexendo nos
 quaternioes aleatoriamente e tentando aumentar ligeiramente a distancia 
 ao mais proximo dele, mexendo-se só nas casas decimais.
 
+Nesta versão tambem se tenta aproximar aqueles que estão mais longe
+
 Estruturas:
 quaternions: matrix (n,4)
 bindings: matirx (n, 2,1) -> n matrizes, cada uma com 2 linhas e uma coluna
@@ -17,12 +19,13 @@ bindings: matirx (n, 2,1) -> n matrizes, cada uma com 2 linhas e uma coluna
 import numpy as np
 import time
 import quateriongen as qt
+import sys
 #import warnings
 #warnings.warn("ignore", DeprecationWarning)
 
 
 def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia, av):
-    print "\nHill climbing"
+    print "\nHill climbing all to median"
     #vamos sempre trabalhar com os quaternioes antigos, e guardar nas estrutras novas!
 
     new_set_quat = np.copy(quaternions)
@@ -38,7 +41,7 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
     while ( it < number_it):
         for n_q in range (0, bindings.shape[0]):
             quat_mediana = bindings[n_q, 1,0]
-            if  (quat_mediana < mediana):
+            if  (quat_mediana != mediana):
                 # arranjar randons
                 randoms = np.random.uniform(-1,1,(number_of_randoms,4))
                 # temos de mexer pouco nos quaternioes, por isso temos de somar valores baixos
@@ -52,19 +55,33 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
                 new_points = qt.rotate_points(points, news_quats)
                
                 dist = qt.point_dists_mine(rot_points[n_q], new_points)
-                d = 0
-                for iz in range (len(dist)):
-                    if (dist[iz] > quat_mediana) and (dist[iz] < (mediana + to_much)) and (dist[iz] > d):
-                        #guardar os novos pontos
-                        new_rot_points[ int(bindings[n_q,0,0]) ] = new_points[iz]
-                        # guardar o novo quaterniao
-                        new_set_quat[ int(bindings[n_q,0,0]) ] = news_quats[iz]
-                        d = dist[iz]
-                        # não se guarda a nova distancia pois ela não será usada outra vez
-                        # isto é, não se sabe como a mudança de um quat afetou o resto da distribuição
-                        if stop_at_first == 1:
-                            break;
-        
+                
+                if (quat_mediana < mediana):                
+                    d = 0
+                    for iz in range (0,len(dist)):
+                        if (dist[iz] > quat_mediana) and (dist[iz] < (mediana + to_much)) and (dist[iz] > d):
+                            #guardar os novos pontos
+                            new_rot_points[ int(bindings[n_q,0,0]) ] = new_points[iz]
+                            # guardar o novo quaterniao
+                            new_set_quat[ int(bindings[n_q,0,0]) ] = news_quats[iz]
+                            d = dist[iz]
+                            # não se guarda a nova distancia pois ela não será usada outra vez
+                            # isto é, não se sabe como a mudança de um quat afetou o resto da distribuição
+                            if stop_at_first == 1:
+                                break;
+                elif (quat_mediana > mediana):
+                     d = sys.float_info.max
+                     for iz in range (0,len(dist)):
+                         if (dist[iz] < quat_mediana) & (dist[iz] > (mediana - to_much)) and (dist[iz] < d):
+                            #guardar os novos pontos
+                            new_rot_points[ int(bindings[n_q,0,0]) ] = new_points[iz]
+                            # guardar o novo quaterniao
+                            new_set_quat[ int(bindings[n_q,0,0]) ] = news_quats[iz]
+                            d = dist[iz]
+                            # não se guarda a nova distancia pois ela não será usada outra vez
+                            # isto é, não se sabe como a mudança de um quat afetou o resto da distribuição
+                            if stop_at_first == 1:
+                                break;
         
         
         mins, bindings2 = qt.evaluate(new_rot_points)
@@ -83,14 +100,14 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
             var = np.copy(var_old)
     
     mins = qt.evaluate_no_bindings(rot_points)
-    mediana2, av2, var2 = qt.draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'.png', 0.75)
+    mediana2, av2, var2 = qt.draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'_hill_all_to_median.png', 0.75)
     print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", var2-variancia
-    print "Mediana antiga: ", medStart, " Nova mediana: ", mediana2 
-    print "Media antiga: ", av, " Nova media: ", av2
+    #print "Mediana antiga: ", medStart, " Nova mediana: ", mediana2, " dif: ", mediana2-medStart
+    #print "Media antiga: ", av, " Nova media: ", av2, " dif: ", av2-av
     #print "numero de aceitações: ", accepted
     print "elapsed:",time.time()-start_time
 
-    return var2-variancia, accepted
+    return var2-variancia, accepted, mediana2, av2, var2
   
 
  
@@ -109,7 +126,7 @@ stop_at_first = 0
 vdg = 0
 acg = 0
 start_time_global = time.time()
-for times in range (0,3):
+for times in range (0,1):
     start_time = time.time()
     quats,rots = qt.spread_quaternions(points,number_of_quat,quaternions_per_set)
     print "elapsed:",time.time()-start_time
@@ -117,13 +134,13 @@ for times in range (0,3):
     mins, bindings = qt.evaluate(rots)
     print "elapsed eval:",time.time()-start_time
 
-    mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
+    mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'_hill_all_to_median.png')
 
     print "Mediana: " , mediana
     print "Media: ", av
     print "Variancia: ", var
 
-    vd, a = hill_climbing(quats, bindings, mediana, points, rots, var, av)
+    vd, a, mediana2, av2, var2 = hill_climbing(quats, bindings, mediana, points, rots, var, av)
     
     
     
@@ -141,5 +158,7 @@ print "iterações: ", number_it
 print "randoms: ", number_of_randoms
 print "Var Dif: ", vdg
 print "Ace Dif: ", acg
+print "Media antiga: ", av, " Nova media: ", av2, " dif: ", av2-av
+print "Mediana antiga: ", mediana, " Nova mediana: ", mediana2, " dif: ", mediana2-mediana
 print "elapsed eval global:",time.time()-start_time_global
-print "\n\n\n"
+print "\n"
