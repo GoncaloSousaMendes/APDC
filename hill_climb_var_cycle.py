@@ -17,6 +17,7 @@ bindings: matirx (n, 2,1) -> n matrizes, cada uma com 2 linhas e uma coluna
 import numpy as np
 import time
 import quateriongen as qt
+import hole_size as hs
 #import warnings
 #warnings.warn("ignore", DeprecationWarning)
 
@@ -90,7 +91,7 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
     #print "numero de aceitações: ", accepted
     print "elapsed:",time.time()-start_time
 
-    return var2-variancia, accepted
+    return var2-variancia, accepted, quaternions
   
 
  
@@ -99,7 +100,7 @@ points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (
 
 # variavies globais para alterar
 quaternions_per_set = 100
-number_of_quat = 4000
+number_of_quat = 1000
 #para o hill climbing
 value_to_divide = 1000
 number_of_randoms = 100
@@ -123,7 +124,7 @@ for times in range (0,3):
     print "Media: ", av
     print "Variancia: ", var
 
-    vd, a = hill_climbing(quats, bindings, mediana, points, rots, var, av)
+    vd, a, quat_new  = hill_climbing(quats, bindings, mediana, points, rots, var, av)
     
     
     
@@ -133,6 +134,12 @@ for times in range (0,3):
     else:
         vdg = (vd + vdg)/2
         acg = (a + acg)/2
+        
+    new_point = qt.rotate_points(points,quat_new)
+    
+    max_d = hs.avaliate(new_point)
+    
+    print "\ndistancia maxima: ",max_d
     
 print "\n"
 print "number of quat: ", number_of_quat
