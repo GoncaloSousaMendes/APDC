@@ -25,20 +25,20 @@ import hole_size as hs
 #warnings.warn("ignore", DeprecationWarning)
 
 
-def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia, av):
-    print "\nHill climbing all to median"
+def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia, av, number_it,number_of_randoms, value_to_divide, stop_at_first ):
+   # print "\nHill climbing all to median"
     #vamos sempre trabalhar com os quaternioes antigos, e guardar nas estrutras novas!
 
     new_set_quat = np.copy(quaternions)
     new_rot_points = np.copy(rot_points)
     
-    medStart = np.copy(mediana)
+    #medStart = np.copy(mediana)
     # Rever o valor
     to_much = 2
     it = 0
     accepted = 0
     var = np.copy(variancia)
-    start_time = time.time()
+    #start_time = time.time()
     while ( it < number_it):
         for n_q in range (0, bindings.shape[0]):
             quat_mediana = bindings[n_q, 1,0]
@@ -101,73 +101,118 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
             var = np.copy(var_old)
     
     mins = qt.evaluate_no_bindings(rot_points)
-    mediana2, av2, var2 = qt.draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'_hill_all_to_median.png', 0.75)
-    print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", var2-variancia
+    #mediana2, av2, var2 = qt.draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'_hill_all_to_median.png', 0.75)
+    
+    mediana2 = np.median (mins)    
+    av2 = np.average (mins)    
+    var2 = np.var(mins)    
+    
+    #print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", var2-variancia
     #print "Mediana antiga: ", medStart, " Nova mediana: ", mediana2, " dif: ", mediana2-medStart
     #print "Media antiga: ", av, " Nova media: ", av2, " dif: ", av2-av
     #print "numero de aceitações: ", accepted
-    print "elapsed:",time.time()-start_time
+   # print "elapsed:",time.time()-start_time
 
 
 
     return var2-variancia, accepted, mediana2, av2, var2, quaternions
   
+def run_hill(points,  number_of_quat, value_to_divide, number_of_randoms,number_it,stop_at_first, quaternions):
 
- 
-            
-points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
-
-# variavies globais para alterar
-quaternions_per_set = 100
-number_of_quat = 1000
-#para o hill climbing
-value_to_divide = 1000
-number_of_randoms = 100
-number_it = 10
-stop_at_first = 0
-#print points
-vdg = 0
-acg = 0
-start_time_global = time.time()
-for times in range (0,1):
-    start_time = time.time()
-    quats,rots = qt.spread_quaternions(points,number_of_quat,quaternions_per_set)
-    print "elapsed:",time.time()-start_time
-    start_time = time.time()
+    print "HILL CLIMBING MEDIAN"
+    rots = qt.rotate_points(points, quaternions)
     mins, bindings = qt.evaluate(rots)
-    print "elapsed eval:",time.time()-start_time
 
-    mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'_hill_all_to_median.png')
+    mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
 
+    max_d_i = hs.avaliate(rots, points)  
+    print"\nStatistics results of distribution:"
     print "Mediana: " , mediana
     print "Media: ", av
     print "Variancia: ", var
-
-    vd, a, mediana2, av2, var2, quat_new = hill_climbing(quats, bindings, mediana, points, rots, var, av)
+    print "Distancia maxima inicial: ",max_d_i
+    vd, a, mediana2, av2, var2, quat_new  = hill_climbing(quaternions, bindings, mediana, points, rots, var, av, number_it,number_of_randoms, value_to_divide, stop_at_first)
     
-    
-    
-    if times == 0:
-        vdg = vd
-        acg = a
-    else:
-        vdg = (vd + vdg)/2
-        acg = (a + acg)/2
-        
     new_point = qt.rotate_points(points,quat_new)
+    max_d = hs.avaliate(new_point, points)
+    print"\nStatistics results of hill climbing:"
+    print "Mediana: ", mediana2 
+    print "Media: ", av2
+    print "Variancia: ", var2 
+    print "distancia maxima final: ",max_d
+        
+    print"\nDiferences:"
+    print"Variancia dif: ", var2-var
+    print"Distande dif: ", max_d - max_d_i
     
-    max_d = hs.avaliate(new_point)
+    return quat_new, mediana, av, var, max_d_i, mediana2, av2, var2, max_d
+ 
+def teste():           
+    points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
     
-    print "\ndistancia maxima: ",max_d
+    # variavies globais para alterar
+    quaternions_per_set = 100
+    number_of_quat = 1000
+    #para o hill climbing
+    value_to_divide = 1000
+    number_of_randoms = 100
+    number_it = 1
+    stop_at_first = 0
+    #print points
+    vdg = 0
+    acg = 0
+    start_time_global = time.time()
+    print "HILL CLIMBING ALL TO MEDIAN"
+    for times in range (0,1):
+        print"Running conditions:"
+        print "number of quat: ", number_of_quat
+        print "divide by: ", value_to_divide
+        print "iterações: ", number_it
+        print "randoms: ", number_of_randoms
+        if stop_at_first == 1:
+            print"stop at first: yes"
+        else:
+            print"stop at first: no"
+        #start_time = time.time()
+        quats,rots = qt.spread_quaternions(points,number_of_quat,quaternions_per_set)
+        #print "\nelapsed for creating distribution:",time.time()-start_time
+        #start_time = time.time()
+        mins, bindings = qt.evaluate(rots)
+        #print "elapsed eval:",time.time()-start_time
     
-print "\n"
-print "number of quat: ", number_of_quat
-print "divide by: ", value_to_divide
-print "iterações: ", number_it
-print "randoms: ", number_of_randoms
-print "Var Dif: ", vdg
-print "Ace Dif: ", acg
-print "Media antiga: ", av, " Nova media: ", av2, " dif: ", av2-av
-print "Mediana antiga: ", mediana, " Nova mediana: ", mediana2, " dif: ", mediana2-mediana
-print "elapsed eval global:",time.time()-start_time_global
-print "\n"
+        mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
+        
+    
+        max_d_i = hs.avaliate(rots)    
+        print"\nStatistics results of distribution:"
+        print "Mediana: " , mediana
+        print "Media: ", av
+        print "Variancia: ", var
+        print "Distancia maxima inicial: ",max_d_i
+    
+        vd, a, mediana2, av2, var2, quat_new  = hill_climbing(quats, bindings, mediana, points, rots, var, av)
+    
+        if times == 0:
+            vdg = vd
+            acg = a
+        else:
+            vdg = (vd + vdg)/2
+            acg = (a + acg)/2
+            
+        new_point = qt.rotate_points(points,quat_new)
+        max_d = hs.avaliate(new_point)
+        print"\nStatistics results of hill climbing:"
+        print "Mediana: ", mediana2 
+        print "Media: ", av2
+        print "Variancia: ", var2 
+        print "distancia maxima final: ",max_d
+        
+        print"\nDiferences:"
+        print"Variancia dif: ", var2-var
+        print"Distande dif: ", max_d - max_d_i
+        
+    #print "\n"
+    #print "Var Dif: ", vdg
+    #print "Ace Dif: ", acg
+    print "\nelapsed eval global:",time.time()-start_time_global
+    #print "\n\n\n"

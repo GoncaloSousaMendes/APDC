@@ -87,7 +87,7 @@ def rotate_points(points,quaternions):
     
     res = np.zeros((quaternions.shape[0],points.shape[0],4))  
     #print res    
-    # cada matrix sera igual ao points
+    # cada matrix sera igual ao points, a excepção das primeiras filas
     res[:,:,1:] = points   
     #print res    
     # vai buscar os conjugates...
@@ -107,7 +107,10 @@ def point_dists(base_sets,new_sets):
     """
     res = np.zeros(new_sets.shape[0])
     for ix in range(len(res)):
+        #diferenças entre todos os pontos
         diffs = base_sets[:]-new_sets[ix]
+        # assume a forma (diff(x)^2 + diff(y)^2 + diff(z)^2)
+        # cada linha fica com todas as de qn ate ao random com todos os pontos
         dists = np.sum(np.square(diffs),axis=-1)
         maxd = np.max(dists,axis=-1)     
         res[ix] = np.min(maxd)
@@ -115,13 +118,11 @@ def point_dists(base_sets,new_sets):
  
 def point_dists_mine(base_sets,new_sets):
     """
-    return vector of max distances between each
-    new_points to base_ponts
+    return vector of max distances between the base_point (it's only one quaternion rotate)
+    and the new_point (all the quaternions)
     """
-    res = np.zeros(new_sets.shape[0])
+    res = np.zeros((new_sets.shape[0]))
     for ix in range(len(res)):
-        #dists = dist(base_sets, new_sets[ix])
-        #print "distancia do ponto o"dists
         diffs = base_sets[:]-new_sets[ix]
         dists = np.sum(np.square(diffs),axis=-1)
         res[ix] = np.max(dists,axis=-1)
@@ -155,7 +156,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
         
         quats[ix,:]=rand_quats[new_rot,:]
         rot_points[ix,:,:] = positioned[new_rot,:,:]
-    print "number of quaternions: ",len(quats)    
+    #print "number of quaternions: ",len(quats)    
     return quats,rot_points
         
 def evaluate(rot_points):
