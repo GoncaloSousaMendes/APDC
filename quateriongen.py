@@ -122,11 +122,107 @@ def point_dists_mine(base_sets,new_sets):
     and the new_point (all the quaternions)
     """
     res = np.zeros((new_sets.shape[0]))
+    #print 'size'
+    #print new_sets.shape
     for ix in range(len(res)):
+#        print 'calcular o: ', ix
+#        if ix == 8:
+#            print base_sets[:]
+#            print new_sets[ix]
         diffs = base_sets[:]-new_sets[ix]
+#        print diffs
         dists = np.sum(np.square(diffs),axis=-1)
+#        print dists
+        #print dists
         res[ix] = np.max(dists,axis=-1)
+    return res
+    
+def point_dists_one_point(ix, base_sets,new_sets):
+    """
+    return vector of max distances between the base_point
+    and the new_point (one quaternion)
+    """
+    res = np.zeros((base_sets.shape[0]))
+#    print res
+    # não queremos comparar com o quaterião de origem!
+    if ix==0:
+#        print 'todos menos o primeiro ', ix
+        base_sets = base_sets[1:]
+    elif ix==len(res)-1:
+#        print 'todos menos o ultimo ', len(res)-1, ' ix: ', ix
+        base_sets = base_sets[:-1]
+    else:
+#        print 'todos menos o ', ix
+        base_sets = np.concatenate((base_sets[:ix],base_sets[ix+1:]))
+    
+#    print base_sets
+#    print 'new set:'
+#    print new_sets
+    diffs = base_sets-new_sets
+    dists = np.sum(np.square(diffs),axis=-1)
+
+    res= np.max(dists,axis=-1)
+#    print res
+#    if np.min(res) <= 0.:
+#        print 'zero no resultado'
+#        print base_sets
+#        print new_sets
+#        print diffs
     return res   
+
+def dist_to_n_closer(n,ix, base_sets,new_sets):
+    res = np.zeros((base_sets.shape[0]))
+    # não queremos comparar com o quaterião de origem!
+    if ix==0:
+        base_sets = base_sets[1:]
+    elif ix==len(res)-1:
+        base_sets = base_sets[:-1]
+    else:
+        base_sets = np.concatenate((base_sets[:ix],base_sets[ix+1:]))
+    
+    diffs = base_sets-new_sets
+    dists = np.sum(np.square(diffs),axis=-1)
+    res= np.max(dists,axis=-1)
+#    print '\nDistancias:'
+#    print res
+    dist_min = np.min(res)
+#    print 'minima: ', dist_min
+    indice_closer = res.argsort()[:1]
+#    print 'indicei min: ', indice_closer
+    # devolveos indicies do n mais pequenos
+    n_closer = res.argsort()[:n]
+    return_array  = np.zeros(n)
+    for iz in range (0,len(n_closer)):
+            if n_closer[iz] >= ix:
+                # para não termos indicie errado a partir do quaternião em questão
+                return_array[iz] = n_closer[iz]+1
+            else:
+                return_array[iz] = n_closer[iz]
+#    print 'indicies dos mais proximos:'
+#    print return_array
+    return return_array,dist_min, indice_closer
+
+
+
+
+
+
+    
+#def point_dists_all_to_all(base_sets,new_sets):
+#    """
+#    return vector of max distances between the base_point
+#    and the new_point
+#    """
+#    res = np.zeros((new_sets.shape[0]))
+#    #print 'size'
+#    #print new_sets.shape
+#    diffs = base_sets-new_sets
+#    dists = np.sum(np.square(diffs),axis=-1)
+#        #print dists
+#    res = np.max(dists,axis=-1)
+#    return res 
+    
+    
     
 def spread_quaternions(points,num=100,quats_per_step=100):
     """
@@ -146,7 +242,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
     #print rot_points
     for ix in range(1,num):
         # criar quats_per_step quaterniões aleatorios 
-        rand_quats = random_quaternions(quats_per_step) 
+        rand_quats = random_quaternions(quats_per_step)
         # fazer a rotação dos pontos usando os quaterniões aleatorios
         positioned = rotate_points(points,rand_quats)
         # ver as distancias (retorna já os mais proximos!)
@@ -158,7 +254,7 @@ def spread_quaternions(points,num=100,quats_per_step=100):
         rot_points[ix,:,:] = positioned[new_rot,:,:]
     #print "number of quaternions: ",len(quats)    
     return quats,rot_points
-        
+ 
 def evaluate(rot_points):
     """
     return array with min distances
@@ -222,17 +318,20 @@ def evaluate_no_bindings(rot_points):
     return res
     
 def normalize_quat(quat):
-    mag2 = np.zeros((quat.shape[0]))
-    r = np.zeros((quat.shape[0],4),)
-    for ix in range(quat.shape[0]):
-        #print quat[ix]
-        mag2 [ix] = (quat[ix,0] * quat[ix,0]) +  (quat[ix,1] * quat[ix,1]) + (quat[ix,2] * quat[ix,2])+ (quat[ix,3] * quat[ix,3])
-        if math.fabs(mag2[ix] - 1.0) > 0.00001:
-            mag = math.sqrt(mag2[ix])
-            r[ix,0] = quat[ix,0] / mag
-            r[ix,1] = quat[ix,1] / mag
-            r[ix,2] = quat[ix,2] / mag
-            r[ix,3] = quat[ix,3] / mag
+#    mag2 = np.zeros((quat.shape[0]))
+#    r = np.zeros((quat.shape[0],4),)
+#    for ix in range(quat.shape[0]):
+#        #print quat[ix]
+#        mag2 [ix] = (quat[ix,0] * quat[ix,0]) +  (quat[ix,1] * quat[ix,1]) + (quat[ix,2] * quat[ix,2])+ (quat[ix,3] * quat[ix,3])
+#        if math.fabs(mag2[ix] - 1.0) > 0.00001:
+#            mag = math.sqrt(mag2[ix])
+#            r[ix,0] = quat[ix,0] / mag
+#            r[ix,1] = quat[ix,1] / mag
+#            r[ix,2] = quat[ix,2] / mag
+#            r[ix,3] = quat[ix,3] / mag
+
+    mag = np.sum(quat**2,axis=1, keepdims=True)
+    r = quat / np.sqrt(mag)   
     return r
     
 def convert_to_quaternions (quat):
@@ -251,13 +350,6 @@ def draw_kde(vals,image_file, band = 0.75):
     me = np.median (vals)    
     av = np.average (vals)    
     var = np.var(vals)
-    
-    #shapiro wilk test
-    #s = scipy.stats.shapiro(vals)
-    #print "shapiro: ", s
-    
-    #k = scipy.stats.kurtosis(vals,axis=0, fisher=False, bias=True)
-    #print "kurtosis: ", k
     
     kde = KernelDensity(kernel='gaussian', bandwidth=band).fit(vals[:,np.newaxis])
     plt.figure(figsize=(12,8))

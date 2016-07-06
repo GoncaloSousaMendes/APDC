@@ -20,7 +20,7 @@ import numpy as np
 import time
 import quateriongen as qt
 import sys
-import hole_size as hs
+
 #import warnings
 #warnings.warn("ignore", DeprecationWarning)
 
@@ -60,16 +60,29 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
                 if (quat_mediana < mediana):                
                     d = 0
                     for iz in range (0,len(dist)):
-                        if (dist[iz] > quat_mediana) and (dist[iz] < (mediana + to_much)) and (dist[iz] > d):
-                            #guardar os novos pontos
-                            new_rot_points[ int(bindings[n_q,0,0]) ] = new_points[iz]
-                            # guardar o novo quaterniao
-                            new_set_quat[ int(bindings[n_q,0,0]) ] = news_quats[iz]
-                            d = dist[iz]
-                            # não se guarda a nova distancia pois ela não será usada outra vez
-                            # isto é, não se sabe como a mudança de um quat afetou o resto da distribuição
+                       if (dist[iz] > quat_mediana) and (dist[iz] < (mediana + to_much)):
+                            # para ficarmos com o mais longe
                             if stop_at_first == 1:
-                                break;
+                                #guardar os novos pontos
+                                new_rot_points[int(bindings[n_q,0,0])] = new_points[iz]
+                                #guardar o novo quaterniao
+                                new_set_quat[int(bindings[n_q,0,0])] = news_quats[iz]
+                                d = dist[iz] 
+                                
+                            elif((stop_at_first == 0) and (dist[iz] > d)):
+                                #guardar os novos pontos
+                                new_rot_points[int(bindings[n_q,0,0])] = new_points[iz]
+                                #guardar o novo quaterniao
+                                new_set_quat[int(bindings[n_q,0,0])] = news_quats[iz]
+                                d = dist[iz]
+    
+                            #para ficarmos com a mais proxima
+                            elif((stop_at_first == 2) and (dist[iz] < d)):
+                                #guardar os novos pontos
+                                new_rot_points[int(bindings[n_q,0,0])] = new_points[iz]
+                                #guardar o novo quaterniao
+                                new_set_quat[int(bindings[n_q,0,0])] = news_quats[iz]
+                                d = dist[iz]
                 elif (quat_mediana > mediana):
                      d = sys.float_info.max
                      for iz in range (0,len(dist)):
@@ -103,9 +116,9 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
     mins = qt.evaluate_no_bindings(rot_points)
     #mediana2, av2, var2 = qt.draw_kde(mins,'distribution_new_'+str(quaternions.shape[0])+'_hill_all_to_median.png', 0.75)
     
-    mediana2 = np.median (mins)    
+    mediana2 = mediana
     av2 = np.average (mins)    
-    var2 = np.var(mins)    
+    var2 = var
     
     #print "Variancia antiga: ", variancia, " Variancia nova: ", var2, " diferença: ", var2-variancia
     #print "Mediana antiga: ", medStart, " Nova mediana: ", mediana2, " dif: ", mediana2-medStart
@@ -115,37 +128,24 @@ def hill_climbing(quaternions, bindings, mediana, points, rot_points, variancia,
 
 
 
-    return var2-variancia, accepted, mediana2, av2, var2, quaternions
+    return var2-variancia, accepted, mediana2, av2, var2, quaternions, bindings2
+
+
+
   
-def run_hill(points,  number_of_quat, value_to_divide, number_of_randoms,number_it,stop_at_first, quaternions):
+def run_hill(points, value_to_divide, number_of_randoms, number_it,stop_at_first, quaternions, rots, bindings, av, var, mediana):
 
-    print "HILL CLIMBING MEDIAN"
-    rots = qt.rotate_points(points, quaternions)
-    mins, bindings = qt.evaluate(rots)
+#    print "HILL CLIMBING SMART"
 
-    mediana, av, var = qt.draw_kde(mins,'distribution_'+str(number_of_quat)+'.png')
-
-    max_d_i = hs.avaliate(rots, points)  
-    print"\nStatistics results of distribution:"
-    print "Mediana: " , mediana
-    print "Media: ", av
-    print "Variancia: ", var
-    print "Distancia maxima inicial: ",max_d_i
-    vd, a, mediana2, av2, var2, quat_new  = hill_climbing(quaternions, bindings, mediana, points, rots, var, av, number_it,number_of_randoms, value_to_divide, stop_at_first)
+    vd, a, mediana2, av2, var2, quat_new,bindings2  = hill_climbing(quaternions, bindings, mediana, points, rots, var, av, number_it,number_of_randoms, value_to_divide, stop_at_first)
     
-    new_point = qt.rotate_points(points,quat_new)
-    max_d = hs.avaliate(new_point, points)
-    print"\nStatistics results of hill climbing:"
-    print "Mediana: ", mediana2 
-    print "Media: ", av2
-    print "Variancia: ", var2 
-    print "distancia maxima final: ",max_d
-        
-    print"\nDiferences:"
-    print"Variancia dif: ", var2-var
-    print"Distande dif: ", max_d - max_d_i
+    return quat_new, mediana2, av2, var2, bindings2
     
-    return quat_new, mediana, av, var, max_d_i, mediana2, av2, var2, max_d
+    
+    
+    
+    
+    
  
 def teste():           
     points = np.array([(0,0,0),(6,9,3), (6,9,0),(6,0,0),(0,9,0), (0,0,3), (0,9,3), (6,0,3)]).astype(float)
